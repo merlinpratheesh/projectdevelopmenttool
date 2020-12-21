@@ -124,5 +124,8 @@
       }
     }
   },
-  "defaultProject": "ProjectDevelopmentTool"
+  "defaultProject": "ProjectDevelopmentTool",
+  "cli": {
+    "analytics": "7e480857-5fdb-4e18-9f73-4e507a0d1d51"
+  }
 }
