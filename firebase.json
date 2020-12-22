@@ -5,6 +5,14 @@
   },
   "hosting": [
     {
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html",
+          "target": "ProjectDevelopmentTool"
+        }
+      ],
+  
       "public": "public",
       "ignore": [
         "firebase.json",
