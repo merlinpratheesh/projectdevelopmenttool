@@ -5,6 +5,7 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { UserdataService } from './service/userdata.service';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { conditionallyCreateMapObjectLiteral } from '@angular/compiler/src/render3/view/util';
+import { withLatestFrom, map, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -13,29 +14,21 @@ import { conditionallyCreateMapObjectLiteral } from '@angular/compiler/src/rende
 })
 export class AppComponent implements OnInit {
   title = 'ProjectDevelopmentTool';
-  subjectauth = new BehaviorSubject(null);
-  subjectonline = new BehaviorSubject(false);
+  subjectauth = new BehaviorSubject(undefined);
+  subjectonline = new BehaviorSubject(undefined);
   getObservableauthStateSub:Subscription;
   getObservableonlineSub:Subscription;
   myauth;
   myonline;
+  myauthonline;
   openDialogSub:Subscription;
   getObservableauthState = (authdetails: Observable<firebase.User>) => {
 
     if(this.getObservableauthStateSub !== undefined){
-      //this.subjectauth.complete();
       this.getObservableauthStateSub.unsubscribe();
     }
     this.getObservableauthStateSub= authdetails.subscribe((val: any) => {     
-      console.log('val', val);
-      if(val){
-        this.titleDialogRef?.close();
-      }
-      if(val === null){
-        this.titleDialogRef?.close();
-        this.openDialog('loggedout');
-      }
-      this.subjectauth.next(val);
+     this.subjectauth.next(val);
     });
     return this.subjectauth;
   };
@@ -44,24 +37,11 @@ export class AppComponent implements OnInit {
   getObservableonine = (localonline: Observable<boolean>) => {    
     this.getObservableonlineSub?.unsubscribe();
     this.getObservableonlineSub= localonline.subscribe((valOnline: any) => {
-      console.log('valOnline', valOnline);
-      if(valOnline === true){
-        this.componentLogOff();
-        this.openDialog('loggedout');
-      }else{
-        this.titleDialogRef?.close();
-      }
-      
       this.subjectonline.next(valOnline);
     });
     return this.subjectonline;
   };
-
-
-
-
-
-
+  isOnline$: Observable<boolean>;
   constructor(
     public dialog: MatDialog,
     public afAuth: AngularFireAuth,
@@ -69,8 +49,29 @@ export class AppComponent implements OnInit {
 
     ) {
       this.myauth = this.getObservableauthState(this.afAuth.authState);
-      this.myonline = this.getObservableonine(this.developmentservice.isOnline$);
+      //this.myonline = this.getObservableonine(this.developmentservice.isOnline$);
+      this.myauthonline= this.getObservableonine(this.developmentservice.isOnline$).pipe(
+        switchMap((onlineval:any)=>{
+          return this.myauth.pipe(map((authval:any)=> {
+            console.log('online',onlineval, 'auth', authval);
+            if(onlineval === true){
+              if(authval === null){
+                this.titleDialogRef?.close();
+                this.openDialog('loggedout');
+              }else{
+                this.titleDialogRef?.close();
+              }
+              return onlineval;
+            }
+            if(onlineval === false){
 
+alert('check Internet connection');
+              return onlineval;
+            }
+            
+          }))
+        })        
+      );
     }
     openDialog(status: string): void {
       this.titleDialogRef = this.dialog.open(DialogLogin, {
@@ -83,10 +84,10 @@ export class AppComponent implements OnInit {
       });
     }
     ngOnInit() {
-      //this.openDialog('loggingin');
+     // this.openDialog('spinner');
     }
     componentLogOff() {
-      //this.openDialog('loggedout');//show login Screen, spinner off
+
       this.developmentservice.logout();
       this.openDialogSub?.unsubscribe();
 }
@@ -113,6 +114,10 @@ export class AppComponent implements OnInit {
    <button mat-raised-button color="primary" (click)="testerApiService.login()"> Google login</button>
  </div>
  </div>
+
+ <div *ngIf="data !== 'loggedout'">
+<mat-spinner  ></mat-spinner>
+</div>
 
 
 

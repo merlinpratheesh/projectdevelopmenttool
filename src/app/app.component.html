@@ -1,45 +1,27 @@
-<div *ngIf= "(myonline | async) as myonlinestatus; else myonlinenotworking">
-  Online Status: {{myonlinestatus}}
-<div *ngIf= "(myauth | async) as myauthentication; else waitingforAuth">
- <!---- <pre>
-    {{myauthentication | json}}
-  </pre> -->
 
-  <button mat-raised-button color="warn" (click)="componentLogOff()"> logout</button>
-  <div *ngIf="myauthentication === undefined">
-    Undefined
-    <pre>
-         {{myauthentication | json}}
-       </pre>
-    </div>
-    
-    <div *ngIf="myauthentication === null">
-    Loggedout
-    <pre>
-         {{myauthentication | json}}
-       </pre>
-    </div>
-    
-    <div *ngIf="myauthentication">
-    Loggedin
-    <pre>
-         {{myauthentication | json}}
-       </pre>
-    </div>
-</div>
+
+<div *ngIf= "(myauthonline | async) as onlineAndAuthReady; else onlineAndAuthNotReady">
+  <div *ngIf="(myauth  | async) as AuthReady; else AuthNotReady">
+
+    Online is true
+    <button mat-raised-button color="warn" (click)="developmentservice.logout()"> logout</button>
+  </div>
+<div *ngIf="onlineAndAuthReady === true">
+
 </div>
 
-<ng-template #waitingforAuth>
+</div>
 
-Waiting for Authentication
+<ng-template #onlineAndAuthNotReady>
 
-</ng-template>
+  Check internet connection
+  <div fxLayout="row" fxLayoutAlign="center center" style="height:100vh;">
+    <mat-spinner ></mat-spinner>
+  </div>
 
-
-<ng-template #myonlinenotworking>
-  <mat-spinner ></mat-spinner>
-  NOT WORKING CHECK INTERNET
   </ng-template>
-
-
-
+  <ng-template #AuthNotReady>
+    <div fxLayout="row" fxLayoutAlign="center center" style="height:100vh;">
+    <mat-spinner ></mat-spinner>
+  </div>
+    </ng-template>
