@@ -1,9 +1,11 @@
+<div *ngIf= "(myonline | async) as myonlinestatus; else myonlinenotworking">
+  Online Status: {{myonlinestatus}}
 <div *ngIf= "(myauth | async) as myauthentication; else waitingforAuth">
  <!---- <pre>
     {{myauthentication | json}}
   </pre> -->
 
-  <button mat-raised-button color="warn" (click)="developmentservice.logout()"> logout</button>
+  <button mat-raised-button color="warn" (click)="componentLogOff()"> logout</button>
   <div *ngIf="myauthentication === undefined">
     Undefined
     <pre>
@@ -25,12 +27,19 @@
        </pre>
     </div>
 </div>
+</div>
 
 <ng-template #waitingforAuth>
-Spinner
-<button mat-raised-button color="warn" (click)="developmentservice.login()"> login</button>
+
+Waiting for Authentication
 
 </ng-template>
+
+
+<ng-template #myonlinenotworking>
+  <mat-spinner ></mat-spinner>
+  NOT WORKING CHECK INTERNET
+  </ng-template>
 
 
 
