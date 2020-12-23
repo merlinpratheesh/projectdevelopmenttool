@@ -15,7 +15,7 @@ export class UserdataService {
 
   constructor(
     public auth: AngularFireAuth
-  ) { 
+  ) {
     this.isOnline$ = merge(
       of(null),
       fromEvent(window, 'online'),
@@ -23,7 +23,13 @@ export class UserdataService {
     ).pipe(map(() => navigator.onLine));
   }
   login() {
-    return this.auth.signInWithPopup( new (firebase.auth as any).GoogleAuthProvider());
+    return this.auth.signInWithPopup( new (firebase.auth as any).GoogleAuthProvider()).catch(function(error) {
+      // Handle Errors here.
+      var errorCode = error.code;
+      if (errorCode === 'auth/popup-closed-by-user' || errorCode === 'auth/network-request-failed'){
+        alert('Check Internet Connection');
+      }
+    });
   }
   logout() {
     return this.auth.signOut();

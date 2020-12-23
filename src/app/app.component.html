@@ -1,27 +1,31 @@
-
-
-<div *ngIf= "(myauthonline | async) as onlineAndAuthReady; else onlineAndAuthNotReady">
-  <div *ngIf="(myauth  | async) as AuthReady; else AuthNotReady">
-
-    Online is true
-    <button mat-raised-button color="warn" (click)="developmentservice.logout()"> logout</button>
+<div *ngIf="(myonlineAfterAuth | async) as onlineAndAuthReady; else onlineAndAuthNotReady">
+  <div *ngIf="onlineAndAuthReady === true">
+    <div *ngIf="(myauth | async) as loggedin; else loggedout">
+      Main-Screen:{{loggedin | json}}
+      <button mat-raised-button color="primary" (click)="developmentservice.logout()"> LogOut</button>
+ 
+    </div>
   </div>
-<div *ngIf="onlineAndAuthReady === true">
-
 </div>
-
-</div>
-
 <ng-template #onlineAndAuthNotReady>
-
-  Check internet connection
   <div fxLayout="row" fxLayoutAlign="center center" style="height:100vh;">
-    <mat-spinner ></mat-spinner>
+    onlineAndAuthNotReady:<mat-spinner  [diameter]="30"></mat-spinner>
   </div>
+</ng-template>
 
-  </ng-template>
-  <ng-template #AuthNotReady>
-    <div fxLayout="row" fxLayoutAlign="center center" style="height:100vh;">
-    <mat-spinner ></mat-spinner>
-  </div>
-    </ng-template>
+<ng-template #loggedout>
+  <div style="color:blue; padding:0px;" >
+    <div fxLayout="column" fxLayoutAlign="space-around center" style="letter-spacing: 20px;">
+    <h1> <strong style="font-size:30px">Testing tool</strong> </h1>
+    <h1>  Checkout various Public projects TestCases </h1>
+    <h1>  Also Edit/Create/Delete Testcases in Demo Mode </h1>
+    </div>
+    <div fxLayout="row " fxLayoutAlign="space-around center">
+      <mat-chip-list>
+      <mat-chip  style="font-size:2em; padding:10px;height: 60px !important;
+      " >Login now:</mat-chip>
+      </mat-chip-list>
+      <button mat-raised-button color="primary" (click)="developmentservice.login()"> Google login</button>
+    </div>
+    </div>  
+</ng-template>
