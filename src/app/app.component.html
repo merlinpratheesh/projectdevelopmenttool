@@ -25,16 +25,138 @@
 
 
         </mat-toolbar>
-        User profile:
-        <pre>
+
+        <!--pre>
             {{myProfile | json}}
+          </pre-->
+        <div class="container-wrapper" fxLayout="column" >
+          <div fxLayout="row wrap" fxLayoutAlign="space-around center">
+            <div fxLayout="column" fxFlex="20vw" fxFlex.lt-sm="60vw" Style="padding-bottom:10vh;" fxLayoutGap="10px">
+              <h4>{{myuserProfile?.projectName}}</h4>
+              <mat-form-field appearance="fill" *ngIf="(Sections | async) as mySections; else nokeysinSection">
+                <mat-label>{{myprojectVariables?.initialMainSection}}</mat-label>
+                <mat-select [formControl]="myprojectControls?.subsectionkeysControl">
+                  <mat-optgroup *ngFor="let group of mySections" [label]="group.name"
+                    [disabled]="group.disabled">
+                    <mat-option *ngFor="let mysection of group.section"
+                      [value]="{value: mysection.viewvalue, groupValue: group.name}">
+                      {{mysection.viewvalue}}
+                    </mat-option>
+                  </mat-optgroup>
+                </mat-select>
+              </mat-form-field>
+              <button mat-raised-button color="primary"
+                *ngIf="myprojectFlags?.showPaymentpage === false && myuserProfile?.projectOwner === true  && myprojectControls?.subsectionkeysControl.valid"
+                [disabled]="myprojectFlags?.firstTestcaseEdit === true " (click)="AddNew()">Add</button>
+              <form class="example-form" *ngIf="myprojectFlags?.firstTestcaseEdit === true"  fxLayout="column" fxLayoutGap="10px">
+                <mat-form-field appearance="fill">
+                  <mat-label>Enter New Task Name</mat-label>
+                  <input matInput placeholder="Services or Directives"
+                    [formControl]="myprojectControls?.createTestcaseControl">
+                  <mat-hint>Unique Name!</mat-hint>
+                </mat-form-field>
+                <button mat-raised-button color="primary" (click)="saveTC()"
+                  [disabled]="!(myprojectControls?.createTestcaseControl.value)">Save</button>
+                <button mat-raised-button color="warn" (click)="exitTC()">Cancel</button>
+              </form>
+              <button mat-raised-button color="accent"
+                [fxShow]="myprojectFlags?.showPaymentpage === false && myuserProfile?.projectOwner === true && myprojectFlags?.firstTestcaseEdit === false && myprojectControls?.subsectionkeysControl.valid && myprojectVariables.testcaseslength > 0"
+                [disabled]="myprojectFlags?.showEditTcButton !== true"
+                (click)="openedit()">Edit</button>
+              <button mat-raised-button color="warn"
+              [fxShow]="myprojectFlags?.showPaymentpage === false && myuserProfile?.projectOwner === true && myprojectFlags?.firstTestcaseEdit === false && myprojectControls?.subsectionkeysControl.valid && myprojectVariables.testcaseslength > 0 "
+                [disabled]="myprojectFlags?.showEditTcButton !== true" (click)="Delete()">Delete</button>
+            </div>
+            <div fxLayout="column" fxFlex="60vw" fxFlex.lt-sm="80vw" Style="padding-bottom:50px;">
+              
+              <h4 *ngIf="myprojectVariables.viewSelectedTestcase === undefined ">Task Steps</h4>
+              <h1 *ngIf="myprojectVariables.viewSelectedTestcase !== undefined">{{myprojectVariables.viewSelectedTestcase?.heading}} </h1>
+              <mat-form-field appearance="fill">
+                <mat-label>{{myprojectVariables.viewSelectedTestcase?.subHeading}}</mat-label>
+                <mat-label *ngIf="myprojectVariables.viewSelectedTestcase === undefined" style="font-size: 24px;" >
+                  Select Task Now!
+                </mat-label>
+                <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="15" cdkAutosizeMaxRows="50" fxFlex="grow" style="overflow-x: hidden;"
+                  [formControl]="myprojectControls?.testcaseInfoControl" readonly>
+ 
+              </textarea>
+              </mat-form-field>
+            </div>
+          </div>
+          <div fxLayout="column" *ngIf="(SectionTc | async) as mySectionTc; else noTcsinSection">
+            <h2>Services and Directives</h2>
+            <mat-card class="list" fxLayout="row wrap" fxLayout.lt-sm="column" fxLayoutAlign="space-around center">
+              <app-singletask ngStyle.lt-sm="width:60vw;" fxLayoutAlign.lt-sm="space-between center" fxLayoutAlign="space-between center" fxLayoutGap="10px"
+                *ngFor="let task of mySectionTc " [task]="task"
+               (toshow)="refreshList($event)" ></app-singletask><!--[lasteditedHeading]="lasteditedHeading" [lasteditedSubHeading]="lasteditedSubHeading"-->
+            </mat-card>
+          </div>
+  
+          <ng-template #noTcsinSection>
+            <h2>Services and Directives</h2>
+            <mat-card class="list" fxLayout="row wrap" fxLayout.lt-sm="column" fxLayoutAlign="space-around center">
+              <p class="empty-label">
+                Empty list</p>
+            </mat-card>
+          </ng-template>        
+        </div>
+        <!--div *ngIf="(Sections | async) as mySections; else nokeysinSection">
+
+          <pre>
+              
+            {{mySections | json}}
           </pre>
+          Keys:
+          <mat-form-field appearance="fill">
+            <mat-label>{{myprojectVariables?.initialMainSection}}</mat-label>
+            <mat-select [formControl]="myprojectControls?.subsectionkeysControl">
+              <mat-optgroup *ngFor="let group of mySections" [label]="group.name" [disabled]="group.disabled">
+                <mat-option *ngFor="let subsec of group.section"
+                  [value]="{value: subsec.viewvalue, groupValue: group.name}">
+                  {{subsec.viewvalue}}
+                </mat-option>
+              </mat-optgroup>
+            </mat-select>
+          </mat-form-field>
+        </div-->
+        <!--div *ngIf="(SectionTc | async) as mySectionTc; else noTcsinSection">
+          TC:
+          <pre>
+              {{mySectionTc | json}}
+            </pre>
+        </div-->
+  
+
+
+
+
+        <ng-template #nokeysinSection>
+          No KEYS
+        </ng-template>
+
+
+
+      </mat-sidenav-content>
+      <mat-sidenav #drawer class="drawer" mode="side" opened="false" (opened)="draweropen()" fxFlex.lt-sm="100vw">
+        <mat-toolbar class="header" color="warn">
+          <div>Task keys Management</div>
+          <span fxFlex="grow"></span>
+          <mat-icon style="margin-right:20px;" class="close" (click)="drawerclose()">close</mat-icon>
+        </mat-toolbar>
+        <mat-tab-group>
+          <mat-tab>
+            <ng-template mat-tab-label>Home</ng-template>
+            <ng-template matTabContent>
+              User profile:
+              <pre>
+          {{myProfile | json}}
+        </pre>
         <div *ngIf="(publicList | async) as mypublicList; else nopublicList">
           <!--pre>
               Public: {{mypublicList | json}}
             </pre-->
           <form Style="margin-top:20px;">
-            <mat-label fxFlexAlign="center">Public Project</mat-label>
+            <mat-label fxFlexAlign="center">Published Task</mat-label>
             <mat-form-field appearance="fill">
               <input #trigger1="matAutocompleteTrigger" matInput [matAutocomplete]="auto1"
                 placeholder="Pick one or Create New" aria-label="Number"
@@ -51,65 +173,25 @@
 
           </form>
         </div>
-        <div *ngIf="(Sections | async) as mySections; else nokeysinSection">
-
-          <!--pre>
-              
-            {{mySections | json}}
-          </pre-->
-          Keys:
-          <mat-form-field appearance="fill">
-            <mat-label>{{myprojectVariables?.initialMainSection}}</mat-label>
-            <mat-select [formControl]="myprojectControls?.subsectionkeysControl">
-              <mat-optgroup *ngFor="let group of mySections" [label]="group.name" [disabled]="group.disabled">
-                <mat-option *ngFor="let subsec of group.section"
-                  [value]="{value: subsec.viewvalue, groupValue: group.name}">
-                  {{subsec.viewvalue}}
-                </mat-option>
-              </mat-optgroup>
-            </mat-select>
-          </mat-form-field>
-        </div>
-        <div *ngIf="(SectionTc | async) as mySectionTc; else noTcsinSection">
-          TC:
-          <pre>
-              {{mySectionTc | json}}
-            </pre>
-        </div>
-
-
         <ng-template #nopublicList>
           No public Projects
         </ng-template>
-
-
-        <ng-template #noTcsinSection>
-          No Tcs
-        </ng-template>
-        <ng-template #nokeysinSection>
-          No KEYS
-        </ng-template>
-
-
-
-      </mat-sidenav-content>
-      <mat-sidenav #drawer class="drawer" mode="side" opened="false" (opened)="draweropen()" fxFlex.lt-sm="100vw">
-        <mat-toolbar class="header" color="warn">
-          <div>Task keys Management</div>
-          <span fxFlex="grow"></span>
-          <mat-icon style="margin-right:20px;" class="close" (click)="drawerclose()">close</mat-icon>
-        </mat-toolbar>
-        User profile:
-        <pre>
-    {{myProfile | json}}
-  </pre>
+            </ng-template>
+          </mat-tab>
+          <mat-tab>
+            <ng-template mat-tab-label>Edit</ng-template>
+            <ng-template matTabContent>
+              User profile:
+              <pre>
+          {{myProfile | json}}
+        </pre>
         <div *ngIf="(privateList | async) as myprivateList; else noprivateList">
           <!--pre>
           Private: {{myprivateList | json}}
         </pre-->
 
           <form Style="margin-top:20px;">
-            <mat-label fxFlexAlign="center">Private Project</mat-label>
+            <mat-label fxFlexAlign="center">My Tasks</mat-label>
             <mat-form-field appearance="fill">
               <mat-select [formControl]="myprojectControls?.ownPublicprojectControl">
                 <mat-option *ngFor="let option of myprivateList" [value]="option">
@@ -118,7 +200,7 @@
             </mat-form-field>
           </form>
         </div>
-        <div *ngIf="(privateMain | async) as myprivateMain; else noprivateMain">
+        <div *ngIf="(privateSection | async) as myprivateMain; else noprivateMain">
 
           Main Section List:
           <form [formGroup]="myprojectControls?.editMainsectionGroup">
@@ -159,6 +241,17 @@
             </mat-form-field>
           </form>
         </div>
+            </ng-template>
+          </mat-tab>
+          <mat-tab>
+            <ng-template mat-tab-label>Payments</ng-template>
+            <ng-template matTabContent>
+            </ng-template>
+          </mat-tab>
+        </mat-tab-group>
+
+       
+
         <ng-template #noprivateList>
           No Private Projects
         </ng-template>
@@ -170,8 +263,10 @@
 
     </mat-sidenav-container>
     <ng-template #newUser>
-      Wait!!
-      <mat-spinner diameter="30"></mat-spinner>
+      <div  fxLayoutAlign="center center" style="height:100vh;">
+        Connecting to Database!
+        <mat-spinner diameter="30"></mat-spinner>
+      </div>
     </ng-template>
   </div>
   <ng-template #loggedout>
@@ -208,6 +303,6 @@
 </div>
 <ng-template #onlineAndAuthNotReady>
   <div fxLayout="row" fxLayoutAlign="center center" style="height:100vh;">
-    Wait for Connection!:<mat-spinner [diameter]="30"></mat-spinner>
+    Checking for Authentication!:<mat-spinner [diameter]="30"></mat-spinner>
   </div>
 </ng-template>

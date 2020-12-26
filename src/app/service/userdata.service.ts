@@ -8,12 +8,14 @@ import { map, first } from 'rxjs/operators';
 import { FormControl,FormGroup} from '@angular/forms'
 
 export interface projectSub{
+  NewTaskControlSub:Subscription;
   publicprojectControlSub:Subscription;
   ownPublicprojectControlSub:Subscription;
   editMainsectionGroupSub:Subscription;
   editSubsectionGroupSub:Subscription;
   loadFirstPageTcSub:Subscription;
   loadfirstPageKeysSub:Subscription;
+  openeditSub:Subscription;
 }
 export interface projectFlags
 {    
@@ -75,6 +77,7 @@ export interface projectControls{
 export interface projectVariables
 {
     initialMainSection?:string;
+    testcaseslength?:number;
     viewSelectedTestcase?:TestcaseInfo;
     testcaseInfodata?: Observable<TestcaseInfo[]>;
     modifiedKeysDb?:TestcaseInfo[];
@@ -120,5 +123,91 @@ export class UserdataService {
   }
   docExists() {
     return this.db.doc(`projectList/DemoProjectKey`).valueChanges().pipe(first()).toPromise();
+  }
+  async createNewTestcase(locationForSave : string, newTestcase :TestcaseInfo)  : Promise<void>{
+    await this.db.firestore.doc(locationForSave).set({testcase: firebase.firestore.FieldValue.arrayUnion(newTestcase) },{merge: true}); 
+  }
+  async deleteTestcase(locationForDelete : string, deleteTestcase :TestcaseInfo): Promise<void>{
+    await this.db.firestore.doc(locationForDelete).update({testcase: firebase.firestore.FieldValue.arrayRemove(deleteTestcase)}); 
+  }
+  async editTestcase(locationForedit : string, deleteTestcase :TestcaseInfo,updatedTestcase :TestcaseInfo ): Promise<void>{
+    await this.db.firestore.runTransaction(() => {
+      const promise = Promise.all([
+        this.db.firestore.doc(locationForedit).update({testcase: firebase.firestore.FieldValue.arrayRemove(deleteTestcase)}),
+        this.db.firestore.doc(locationForedit).update({testcase: firebase.firestore.FieldValue.arrayUnion(updatedTestcase)})
+      ]);
+      return promise;
+    });
+  }
+  async createnewproject(uid:string, projectname: string, newprojectinfo: any, MainSection:any) : Promise<void>{
+    await this.db.firestore.runTransaction(() => {
+      const promise = Promise.all([
+        this.db.firestore.doc('myProfile/' + uid).set(newprojectinfo,{merge: true}),
+        this.db.firestore.doc('projectList/' + uid).set({ownerRecord: firebase.firestore.FieldValue.arrayUnion(projectname)},{merge: true}),
+        this.db.firestore.doc('publicProjectKeys/' + projectname).set({MainSection},  {merge: false}) ,
+        this.db.firestore.doc('projectList/' + 'publicProjects/').set({public: firebase.firestore.FieldValue.arrayUnion(projectname)},{merge: true})
+      ]);
+      return promise;
+    });
+  }
+  async deleteproject(uid:string,oldprojectName:string, newprojectinfo: any) : Promise<void>{
+    await this.db.firestore.runTransaction(() => {
+      const promise = Promise.all([
+        this.db.firestore.doc('projectList/' + uid).update({ownerRecord: firebase.firestore.FieldValue.arrayRemove(oldprojectName)}),
+        this.db.firestore.doc('projectList/' + 'publicProjects').update({public: firebase.firestore.FieldValue.arrayRemove(oldprojectName)}),
+        this.db.firestore.doc('myProfile/' + uid).set(newprojectinfo,{merge: true}),
+        this.db.firestore.doc('publicProjectKeys/' + oldprojectName).delete()
+      ]);
+      return promise;
+    });
+  }  
+  async deleteMainSection(ProjectName: string, MainSection: any) : Promise<void>{    
+    await this.db.firestore.runTransaction(() => {
+      const promise = Promise.all([
+        this.db.doc('publicProjectKeys/' + ProjectName).set({MainSection },  {merge: false} )
+    ]);
+    return promise;
+  });
+  }
+  async addMainSection(ProjectName: string,  MainSection: any) : Promise<void>{    
+    await this.db.firestore.runTransaction(() => {
+      const promise = Promise.all([
+        this.db.doc('publicProjectKeys/' + ProjectName).set({MainSection },  {merge: false} )
+    ]);
+    return promise;
+  });
+  }  
+  async updatevisibility(ProjectName: string,MainSection: any) : Promise<void>{
+    await this.db.firestore.runTransaction(() => {
+      const promise = Promise.all([
+        this.db.doc('publicProjectKeys/' + ProjectName).set({MainSection},  {merge: false})
+    ]);
+    return promise;
+  });}
+  async addSubSection(ProjectName: string,MainSectionName:string, SubSectionName: string,MainSection: any) : Promise<void>{
+    await this.db.firestore.runTransaction(() => {
+      const promise = Promise.all([
+        this.db.doc('publicProjectKeys/' + ProjectName).set({MainSection},  {merge: false}),
+        this.db.doc(ProjectName + '/' + MainSectionName + '/items/' + SubSectionName ).delete()  
+    ]);
+    return promise;
+  });}
+  async deleteSubSection(ProjectName: string, MainSection: string, SubSectionName: string, SubsecObj: any) : Promise<void>{
+    await this.db.firestore.runTransaction(() => {
+      const promise = Promise.all([
+        this.db.doc( ProjectName + '/' + MainSection + '/items/' + SubSectionName + '/').delete(),
+        this.db.doc('publicProjectKeys/' + ProjectName).set(SubsecObj,  {merge: false})        
+      ]);
+      return promise;
+    });
+  }
+  async updateSubSection(ProjectName: string, MainSection: string, subSection: any) : Promise<void>{
+    await this.db.firestore.runTransaction(() => {
+      const promise = Promise.all([
+        //this.db.doc('publicProjectKeys/' + ProjectName).update({ [MainSection]: firebase.firestore.FieldValue.delete()}),
+        this.db.doc('publicProjectKeys/' + ProjectName).set(subSection),
+      ]);
+      return promise;
+    });
   }
 }
