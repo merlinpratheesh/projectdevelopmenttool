@@ -1,204 +1,86 @@
-<mat-sidenav-container *ngIf="(myonlineAfterAuth | async) as onlineAndAuthReady; else onlineAndAuthNotReady"
-  fxFlex="100vw">
-  <mat-sidenav-content *ngIf="(myauth | async) as loggedin; else loggedout">
-    <mat-toolbar color="primary" style="width:100vw;">
-      <mat-icon style="margin-right:20px;" *ngIf="!drawer.opened" (click)="drawer.toggle()">
-        menu
-      </mat-icon>
-      <h1>
-        StepsWise Tracking Tool
-      </h1>
-
-      <span fxFlex="grow"></span>
-
-      <div fxHide.lt-sm>
-        Welcome {{myuserProfile.userAuthenObj.displayName}}!
+<div *ngIf="(myonlineAfterAuth | async) as onlineAndAuthReady; else onlineAndAuthNotReady">
+  <div *ngIf="onlineAndAuthReady === true">
+    <div *ngIf="(myauth | async) as loggedin; else loggedout">
+      Main-Screen:
+      <button mat-raised-button color="primary" (click)="componentLogOff()"> LogOut</button>
+      
+      <div *ngIf="(myProfileInfo | async) as myProfile; else newUser">
+        User profile:
+        <pre>
+          {{myProfile | json}}
+        </pre>
       </div>
-      <button mat-icon-button>
+      <div *ngIf="(Sections | async) as mySections; else nokeysinSection">
+        Keys:
+        <pre>
+          {{mySections | json}}
+        </pre>
 
-        <fa-icon (click)="componentLogOff()" class="fas faSignOutAlt fa-lg" [icon]="['fas', 'sign-out-alt']">
-        </fa-icon>
-
-      </button>
-
-
-    </mat-toolbar>
-    <div *ngIf="(myProfileInfo | async) as myProfile; else newUser">
-      User profile:
-      <!--pre>
-            {{myProfile | json}}
-          </pre-->
-    </div>
-    <div *ngIf="(publicList | async) as mypublicList; else nopublicList">
-      <!--pre>
-              Public: {{mypublicList | json}}
-            </pre-->
-      <form Style="margin-top:20px;">
-        <mat-label fxFlexAlign="center">Public Project</mat-label>
         <mat-form-field appearance="fill">
-          <input #trigger1="matAutocompleteTrigger" matInput [matAutocomplete]="auto1"
-            placeholder="Pick one or Create New" aria-label="Number"
-            [formControl]="myprojectControls?.publicprojectControl">
-          <mat-icon (click)="trigger1.panelOpen ? trigger1.closePanel() : trigger1.openPanel()"
-            class="custom-icon custom-form-field-icon">
-            arrow_drop_down
-          </mat-icon>
-          <mat-autocomplete #auto1="matAutocomplete" autoActiveFirstOption>
-            <mat-option *ngFor="let option of mypublicList" [value]="option">
-              {{option}}</mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
-
-      </form>
-    </div>
-    <div *ngIf="(Sections | async) as mySections; else nokeysinSection">
-
-      <!--pre>
-              
-            {{mySections | json}}
-          </pre-->
-      Keys:
-      <mat-form-field appearance="fill">
-        <mat-label>{{myprojectVariables?.initialMainSection}}</mat-label>
-        <mat-select [formControl]="myprojectControls?.subsectionkeysControl">
-          <mat-optgroup *ngFor="let group of mySections" [label]="group.name" [disabled]="group.disabled">
-            <mat-option *ngFor="let subsec of group.section"
-              [value]="{value: subsec.viewvalue, groupValue: group.name}">
-              {{subsec.viewvalue}}
-            </mat-option>
-          </mat-optgroup>
-        </mat-select>
-      </mat-form-field>
-    </div>
-    <div *ngIf="(SectionTc | async) as mySectionTc; else noTcsinSection">
-      TC:
-      <pre>
-              {{mySectionTc | json}}
-            </pre>
-    </div>
-
-
-    <ng-template #nopublicList>
-      No public Projects
-    </ng-template>
-
-    <ng-template #newUser>
-      Wait!!
-      <mat-spinner diameter="30"></mat-spinner>
-    </ng-template>
-    <ng-template #noTcsinSection>
-      No Tcs
-    </ng-template>
-    <ng-template #nokeysinSection>
-      No KEYS
-    </ng-template>
-
-
-
-  </mat-sidenav-content>
-  <mat-sidenav #drawer class="drawer" mode="side" opened="false" (opened)="draweropen()" fxFlex.lt-sm="100vw">
-    <mat-toolbar class="header" color="warn">
-      <div>Task keys Management</div>
-      <span fxFlex="grow"></span>
-      <mat-icon style="margin-right:20px;" class="close" (click)="drawerclose()">close</mat-icon>
-    </mat-toolbar>
-    <div *ngIf="(privateList | async) as myprivateList; else noprivateList">
-      <!--pre>
-          Private: {{myprivateList | json}}
-        </pre-->
-
-      <form Style="margin-top:20px;">
-        <mat-label fxFlexAlign="center">Private Project</mat-label>
-        <mat-form-field appearance="fill">
-          <mat-select [formControl]="myprojectControls?.ownPublicprojectControl">
-            <mat-option *ngFor="let option of myprivateList" [value]="option">
-              {{option}}</mat-option>
+          <mat-label>{{myprojectVariables?.initialMainSection}}</mat-label>
+          <mat-select [formControl]="myprojectControls?.subsectionkeysControl">
+            <mat-optgroup *ngFor="let group of mySections" [label]="group.name" [disabled]="group.disabled">
+              <mat-option *ngFor="let subsec of group.section"
+                [value]="{value: subsec.viewvalue, groupValue: group.name}">
+                {{subsec.viewvalue}}
+              </mat-option>
+            </mat-optgroup>
           </mat-select>
         </mat-form-field>
-      </form>
+      </div>
+      <div *ngIf="(SectionTc | async) as mySectionTc; else noTcsinSection">
+        TC:
+        <pre>
+            {{mySectionTc | json}}
+          </pre>
+      </div>
+      <ng-template #newUser>
+          Wait!!
+          <mat-spinner></mat-spinner>
+      </ng-template>
+      <ng-template #noTcsinSection>
+        No Tcs
+      </ng-template>
+      <ng-template #nokeysinSection>
+        No KEYS
+      </ng-template>
     </div>
-    <div *ngIf="(privateMain | async) as myprivateMain; else noprivateMain">
-
-      Main Section List:
-      <form [formGroup]="myprojectControls?.editMainsectionGroup">
-        <mat-label fxFlexAlign="center">MainSection</mat-label>
-        <mat-form-field appearance="fill">
-          <input #trigger2="matAutocompleteTrigger" matInput [matAutocomplete]="auto2" placeholder="Pick one"
-            aria-label="Number" formControlName="editMainsectionControl">
-          <mat-icon (click)="trigger2.panelOpen ? trigger2.closePanel() : trigger2.openPanel()"
-            class="custom-icon custom-form-field-icon">
-            arrow_drop_down
-          </mat-icon>
-          <mat-autocomplete #auto2="matAutocomplete">
-            <mat-option *ngFor="let option of myuserProfile.mainsubsectionKeys" [value]="option">
-              {{option}}</mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
-      </form>
-      <form Style="margin-top:20px;" [formGroup]="myprojectControls?.visibilityMainsectionGroup">
-        <label class="example-margin">Visibility:</label>
-        <mat-radio-group formControlName="editVisibilityControl">
-          <mat-radio-button class="example-margin" [value]=false>Enable</mat-radio-button>
-          <mat-radio-button class="example-margin" [value]=true>Disable</mat-radio-button>
-        </mat-radio-group>
-      </form>
-      <form [formGroup]="myprojectControls?.editSubsectionGroup" Style="margin-top:20px;">
-        <mat-label fxFlexAlign="center">SubSection</mat-label>
-        <mat-form-field appearance="fill">
-          <input #trigger3="matAutocompleteTrigger" matInput [matAutocomplete]="auto3" placeholder="Pick one"
-            aria-label="Number" formControlName="editSubsectionControl">
-          <mat-icon (click)="trigger3.panelOpen ? trigger3.closePanel() : trigger3.openPanel()"
-            class="custom-icon custom-form-field-icon">
-            arrow_drop_down
-          </mat-icon>
-          <mat-autocomplete #auto3="matAutocomplete">
-            <mat-option *ngFor="let option of myuserProfile.subSectionKeys" [value]="option">{{option}}
-            </mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
-      </form>
-    </div>
-    <ng-template #noprivateList>
-      No Private Projects
-    </ng-template>
-    <ng-template #noprivateMain>
-      No Main Section
-    </ng-template>
-  </mat-sidenav>
-  <ng-template #loggedout>
-    <div fxLayoutAlign="center center" style="height:100vh;">
-      <mat-card class="example-card" fxFlex="30vw" fxFlex.lt-sm="80vw">
-        <mat-card-header>
-          <div mat-card-avatar class="example-header-image"></div>
-          <mat-card-title>Share Tasks</mat-card-title>
-          <mat-card-subtitle>Step by Step</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <div style="color:blue; padding:0px;">
-            <div fxLayout="column" fxLayoutAlign="space-around center" style="letter-spacing: 20px;">
-              <h1> <strong style="font-size:30px">StepsWise Tracking Tool</strong> </h1>
-              <h1> Analayze all the Steps of a Task </h1>
-              <h1> Record all the Steps for Easy Tracking </h1>
-            </div>
-
-          </div>
-        </mat-card-content>
-        <mat-card-actions>
-          <div fxLayout="row " fxLayoutAlign="space-around center">
-            <mat-chip-list>
-              <mat-chip style="font-size:2em; padding:10px;height: 60px !important;
-          ">Login now:</mat-chip>
-            </mat-chip-list>
-            <button mat-raised-button color="primary" (click)="developmentservice.login()"> Google login</button>
-          </div>
-        </mat-card-actions>
-      </mat-card>
-    </div>
-
-  </ng-template>
-</mat-sidenav-container>
+  </div>
+</div>
 <ng-template #onlineAndAuthNotReady>
   <div fxLayout="row" fxLayoutAlign="center center" style="height:100vh;">
-    Wait for Connection!:<mat-spinner [diameter]="30"></mat-spinner>
+    onlineAndAuthNotReady:<mat-spinner [diameter]="30"></mat-spinner>
   </div>
+</ng-template>
+
+<ng-template #loggedout>
+  <div fxLayoutAlign="center center" style="height:100vh;">
+    <mat-card class="example-card" fxFlex="30vw" fxFlex.lt-sm="80vw">
+      <mat-card-header>
+        <div mat-card-avatar class="example-header-image"></div>
+        <mat-card-title>Share Ideas</mat-card-title>
+        <mat-card-subtitle>Step by Step</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div style="color:blue; padding:0px;">
+          <div fxLayout="column" fxLayoutAlign="space-around center" style="letter-spacing: 20px;">
+            <h1> <strong style="font-size:30px">Test All Steps Tool</strong> </h1>
+            <h1> Checkout various Public projects TestCases </h1>
+            <h1> Also Edit/Create/Delete Testcases in Demo Mode </h1>
+          </div>
+
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <div fxLayout="row " fxLayoutAlign="space-around center">
+          <mat-chip-list>
+            <mat-chip style="font-size:2em; padding:10px;height: 60px !important;
+        ">Login now:</mat-chip>
+          </mat-chip-list>
+          <button mat-raised-button color="primary" (click)="developmentservice.login()"> Google login</button>
+        </div>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
 </ng-template>

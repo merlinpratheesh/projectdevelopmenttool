@@ -1,20 +1,13 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import firebase from 'firebase/app';
-import { Observable,Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { of, merge, fromEvent } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { map, first } from 'rxjs/operators';
 import { FormControl,FormGroup} from '@angular/forms'
+import { faWindows } from '@fortawesome/free-brands-svg-icons';
 
-export interface projectSub{
-  publicprojectControlSub:Subscription;
-  ownPublicprojectControlSub:Subscription;
-  editMainsectionGroupSub:Subscription;
-  editSubsectionGroupSub:Subscription;
-  loadFirstPageTcSub:Subscription;
-  loadfirstPageKeysSub:Subscription;
-}
 export interface projectFlags
 {    
     testcasesInSubmenu:boolean;//show add or New Testcase based on number of testcases in subsection
@@ -39,10 +32,12 @@ export interface userProfile {
   projectName?:string
   membershipType?:string;
   endMembershipValidity?:Date;
-  keysReadFromDb?:MainSectionGroup[];
-  mainsubsectionKeys?: string[];
-  subSectionKeys?:string[];
-  savedisabledval?:boolean;
+  mainsubsectionKeys?: Observable<MainSectionGroup[]>;
+  publicProjectData?: Observable<string[]>;
+  ownPublicprojectData?: Observable<string[]>;
+  MainSectionData?: Observable<string[]>;
+  SubSectionData?: string[];
+  ownPublicproject?: string[];
  }
 
 export interface SubSection {
